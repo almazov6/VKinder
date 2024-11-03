@@ -1,3 +1,7 @@
+from ast import Param
+from http.client import responses
+from pprint import pprint
+
 import configpars
 import requests
 
@@ -24,3 +28,13 @@ class Vkapi:
         })
         response = requests.get(f'{API_BASE_URL}/users.get', params=params)
         return response.json()
+
+    def groups_getMembers(self):
+        id = 228101541
+        params = self.get_commot_params()
+        params.update({
+            'group_id': id,
+            'fields': 'bdate, photo_max, city, sex'
+        })
+        response = requests.get(f'{API_BASE_URL}/groups.getMembers', params=params)
+        return response.json()['response']

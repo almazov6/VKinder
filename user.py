@@ -1,5 +1,12 @@
-from pprint import pprint
 import vkapi as api
+
+profile_user = {
+            'first_name': 'Владимир',
+            'last_name': 'Алмазов',
+            'sex': 'Мужской',
+            'city': 'Не заполнено',
+            'birthday': 19
+        }
 
 class User:
     def __init__(self, user_id):
@@ -29,3 +36,10 @@ class User:
             'birthday': birthday
         }
         return result
+
+    def check_user_info(self) -> list:
+        arr = []
+        for item in profile_user.items():
+            if item[1] == 'Не заполнено':
+                arr.append(item[0])
+        return arr
