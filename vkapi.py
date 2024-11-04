@@ -1,4 +1,7 @@
+import json
 from pprint import pprint
+
+from annotated_types.test_cases import cases
 
 import configpars
 import requests
@@ -36,7 +39,8 @@ class Vkapi:
             'city': city_id,
             'sex': 1 if sex == 2 else 2,
             'age_from': age_from,
-            'age_to': age_to
+            'age_to': age_to,
+            'count': 1000
 
         })
         response = requests.get(f'{API_BASE_URL}/users.search', params=params)
@@ -46,12 +50,30 @@ class Vkapi:
         params = self.get_commot_params()
         params.update({
             'access_token': configpars.ConfigParser.configparser('SVK'),
+            'album_id': 'profile',
             'owner_id': user_id,
             'extended': 1
         })
         response = requests.get(f'{API_BASE_URL}/photos.get', params=params)
-        return response.json()
+        try:
+            result = []
+            for i in range(len(response.json()['response']['items'])):
+                likes = response.json()['response']['items'][i]['likes'][
+                    'count']
+                photo_id = response.json()['response']['items'][i]['id']
+                result.append([
+                    likes, photo_id
+                ])
+            result_sorted = sorted(result, reverse=True)
+            return result_sorted[:3]
+        except KeyError:
+            return 'Profile private'
 
-# vk = Vkapi()
-#
-# pprint(vk.photos_get(58595130))
+    def messages_send(self, user_id, user_photo_id, photo_id):
+        params = self.get_commot_params()
+        params.update({
+            'user_id': user_id,
+            'random_id': 0,
+            'attachment': f'photo{user_photo_id}_{photo_id}',
+        })
+        response = requests.get(f'{API_BASE_URL}/messages.send', params=params)

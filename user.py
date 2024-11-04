@@ -7,7 +7,7 @@ profile_user = {
             'first_name': 'Владимир',
             'last_name': 'Алмазов',
             'sex': 2,
-            'city': 1,
+            'city': 99,
             'birthday': 19
         }
 

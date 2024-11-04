@@ -2,7 +2,7 @@ import configpars
 import vk_api
 import user
 
-from vkton.ui import Button
+from vkton.ui import Button, CarouselField
 from vkton import Bot, Commands, Context
 from vk_api.longpoll import VkLongPoll, VkEventType
 from user import User
@@ -76,30 +76,33 @@ def starting(ctx: Context):
         user.profile_user['birthday'] + 5,
     )
     for item in range(len(users)):
-        ctx.user.send(f'{users[item]['first_name']} '
-                      f'{users[item]['last_name']}, '
-                      f'{users[item]['city']['title']}',
-                      photo_url=f'photo{users[item]['photo_id']}',
-                      keys=[
-                          [Button('Следующий', 'white')],
-                          [Button('Перейти в профиль', 'white',
-                                  link=f'https://vk.com/id{users[item]['id']}')],
-                          [Button('Добавить в избранное', 'green')],
-                          [Button('В начало', 'white')],
-                      ])
-        user_message = bot.wait_message(ctx.user, timeout=24 * 3600)
-        if user_message.content == 'В начало':
-            break
-        elif user_message.content == 'Следующий':
-            continue
-        elif user_message.content == 'Добавить в избранное':
-            pass
+        if vk.photos_get(users[item]['id']) != 'Profile private':
+            ctx.user.send(f'{users[item]['first_name']} '
+                          f'{users[item]['last_name']}, '
+                          f'{users[item]['city']['title']}',
+                          keys=[
+                              [Button('Следующий', 'white')],
+                              [Button('Перейти в профиль', 'white',
+                                      link=f'https://vk.com/id{users[item]['id']}')],
+                              [Button('Добавить в избранное', 'green')],
+                              [Button('В начало', 'white')],
+                          ])
+            for ind in range(len(vk.photos_get(users[item]['id']))):
+                vk.messages_send(ctx.user.id, users[item]['id'],
+                                 vk.photos_get(users[item]['id'])[ind][1])
+            user_message = bot.wait_message(ctx.user, timeout=24 * 3600)
+            if user_message.content == 'В начало':
+                break
+            elif user_message.content == 'Следующий':
+                continue
+            elif user_message.content == 'Добавить в избранное':
+                pass
     Commands.redirect(ctx, 'start')
 
 
 @Commands.command(keywords=['В начало'], back_to='start')
 def start(ctx: Context):
-    ctx.user.send('f', keys=[
+    ctx.user.send('Вы вернулись в главное меню', keys=[
         [Button('Знакомства', 'green')],
         [Button('Список избранных', 'white')]
     ])
