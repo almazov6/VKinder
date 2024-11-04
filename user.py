@@ -1,10 +1,13 @@
+from datetime import datetime
+from pprint import pprint
+import datetime
 import vkapi as api
 
 profile_user = {
             'first_name': 'Владимир',
             'last_name': 'Алмазов',
-            'sex': 'Мужской',
-            'city': 'Не заполнено',
+            'sex': 2,
+            'city': 1,
             'birthday': 19
         }
 
@@ -21,17 +24,17 @@ class User:
         except KeyError:
             sex = 'Не заполнено'
         try:
-            city = user['city']['title']
+            city = user['city']['id']
         except KeyError:
             city = 'Не заполнено'
         try:
-            birthday = user['bdate']
+            birthday = datetime.date.today().year - int(user['bdate'][-4:])
         except KeyError:
             birthday = 'Не заполнено'
         result = {
             'first_name': first_name,
             'last_name': last_name,
-            'sex': 'Мужской' if sex == 2 else 'Женский',
+            'sex': sex,
             'city': city,
             'birthday': birthday
         }
