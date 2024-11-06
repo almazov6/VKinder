@@ -1,15 +1,9 @@
 from datetime import datetime
-from pprint import pprint
 import datetime
 import vkapi as api
+import db_connect as database
+from vkapi import Vkapi
 
-profile_user = {
-            'first_name': 'Владимир',
-            'last_name': 'Алмазов',
-            'sex': 2,
-            'city': 99,
-            'birthday': 19
-        }
 
 class User:
     def __init__(self, user_id):
@@ -22,15 +16,15 @@ class User:
         try:
             sex = user['sex']
         except KeyError:
-            sex = 'Не заполнено'
+            sex = 0
         try:
-            city = user['city']['id']
+            city = user['city']['title']
         except KeyError:
             city = 'Не заполнено'
         try:
             birthday = datetime.date.today().year - int(user['bdate'][-4:])
         except KeyError:
-            birthday = 'Не заполнено'
+            birthday = 0
         result = {
             'first_name': first_name,
             'last_name': last_name,
@@ -42,7 +36,7 @@ class User:
 
     def check_user_info(self) -> list:
         arr = []
-        for item in profile_user.items():
-            if item[1] == 'Не заполнено':
+        for item in database.get_user(self.user_id).items():
+            if item[1] == 'Не заполнено' or item[1] == 0:
                 arr.append(item[0])
         return arr
