@@ -25,7 +25,6 @@ class Vkapi:
         response = requests.get(f'{API_BASE_URL}/users.get', params=params)
         return response.json()
 
-
     def user_search(self, city_id, sex, age_from, age_to):
         params = self.get_commot_params()
         params.update({

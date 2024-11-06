@@ -1,8 +1,8 @@
-from datetime import datetime
 import datetime
 import vkapi as api
 import db_connect as database
-from vkapi import Vkapi
+
+from datetime import datetime
 
 
 class User:

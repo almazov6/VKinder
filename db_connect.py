@@ -1,46 +1,47 @@
 import psycopg2
+
 from psycopg2 import sql
-from psycopg2.sql import SQL, Identifier
 
 conn = psycopg2.connect(database='example_db', user='vladimir',
                         password='26289058')
 
 
-def create_db():
-    with conn.cursor() as cur:
-        # cur.execute("""
-        # DROP TABLE users CASCADE;
-        # DROP TABLE shown CASCADE;
-        # DROP TABLE photos CASCADE
-        # """);
-
-        cur.execute("""CREATE TABLE IF NOT EXISTS users(
-                    id SERIAL,
-                    vk_id INTEGER NOT NULL PRIMARY KEY,
-                    name VARCHAR(60) NOT NULL,
-                    last_name VARCHAR(60) NOT NULL,
-                    sex INTEGER,
-                    age INTEGER,
-                    city VARCHAR(40) 
-                    )
-                    """);
-        cur.execute(""" CREATE TABLE IF NOT EXISTS shown(
-                    id serial PRIMARY KEY,
-                    user_id INTEGER NOT NULL REFERENCES users(vk_id), 
-                    vk_id_searched VARCHAR(10) NOT NULL,
-                    name VARCHAR(60) NOT NULL,
-                    last_name VARCHAR(60) NOT NULL,
-                    account_url VARCHAR(40),
-                    statement VARCHAR(10) NOT NULL
-                    )
-                    """);
-
-        cur.execute(""" CREATE TABLE IF NOT EXISTS photos(
-                    shown_id INTEGER NOT NULL REFERENCES shown(id),
-                    photo_url VARCHAR(100)
-                    )
-                    """);
-        conn.commit()
+# def create_db():
+#     with conn.cursor() as cur:
+#         # cur.execute("""
+#         # DROP TABLE users CASCADE;
+#         # DROP TABLE shown CASCADE;
+#         # DROP TABLE photos CASCADE
+#         # """);
+#         conn.commit()
+#
+#         cur.execute("""CREATE TABLE IF NOT EXISTS users(
+#                     id SERIAL,
+#                     vk_id INTEGER NOT NULL PRIMARY KEY,
+#                     name VARCHAR(60) NOT NULL,
+#                     last_name VARCHAR(60) NOT NULL,
+#                     sex INTEGER,
+#                     age INTEGER,
+#                     city VARCHAR(40)
+#                     )
+#                     """);
+#         cur.execute(""" CREATE TABLE IF NOT EXISTS shown(
+#                     id serial PRIMARY KEY,
+#                     user_id INTEGER NOT NULL REFERENCES users(vk_id),
+#                     vk_id_searched VARCHAR(10) NOT NULL,
+#                     name VARCHAR(60) NOT NULL,
+#                     last_name VARCHAR(60) NOT NULL,
+#                     account_url VARCHAR(40),
+#                     statement VARCHAR(10) NOT NULL
+#                     )
+#                     """);
+#
+#         cur.execute(""" CREATE TABLE IF NOT EXISTS photos(
+#                     shown_id INTEGER NOT NULL REFERENCES shown(id),
+#                     photo_url VARCHAR(100)
+#                     )
+#                     """);
+#         conn.commit()
 
 
 def add_user(vk_id, name, last_name, sex, age, city):
@@ -118,39 +119,6 @@ def del_shown_user(shown_vk_id):
         conn.commit()
 
 
-def like(vk_id_user):
-    with conn.cursor() as cur:
-        cur.execute(f"""
-            UPDATE shown SET statement='like'
-            WHERE id = (SELECT * FROM (SELECT shown.id FROM users
-            RIGHT JOIN shown ON users.id = shown.user_id
-            WHERE users.vk_id LIKE '{vk_id_user}') 
-            ORDER BY id DESC LIMIT 1)
-            """)
-
-
-def dislike(vk_id_user):
-    with conn.cursor() as cur:
-        cur.execute(f"""
-            UPDATE shown SET statement='dislike'
-            WHERE id = (SELECT * FROM (SELECT shown.id FROM users
-            RIGHT JOIN shown ON users.id = shown.user_id
-            WHERE users.vk_id LIKE '{vk_id_user}') 
-            ORDER BY id DESC LIMIT 1)        
-            """)
-
-
-def show_likes():
-    with conn.cursor() as cur:
-        cur.execute("""
-            SELECT name, last_name, account_url FROM shown
-            WHERE statement LIKE 'like'
-            """)
-        result = cur.fetchone()
-        print(f'{result[0]} {result[1]}, {result[2]}')
-
-
-# на всякий случай, если с добавлением города получится
 def change_gender(user_id, gender_numb):
     with conn.cursor() as cur:
         cur.execute(
@@ -174,6 +142,3 @@ def change_city(user_id, city):
             city=sql.Identifier(str(city)))
         cur.execute(stmt)
         conn.commit()
-
-
-create_db()

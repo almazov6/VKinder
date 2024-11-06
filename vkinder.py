@@ -92,7 +92,7 @@ def starting(ctx: Context):
     for item in range(len(users)):
         if vk.photos_get(users[item][
                              'id']) != 'Profile private' and not database.check_shown(
-                users[item]['id']):
+            users[item]['id']):
             ctx.user.send(f'{users[item]['first_name']} '
                           f'{users[item]['last_name']}, '
                           f'{users[item]['city']['title']}',
