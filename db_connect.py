@@ -3,8 +3,8 @@ import psycopg2
 from psycopg2 import sql
 from vkapi import photos_get
 
-conn = psycopg2.connect(database='example_db', user='vladimir',
-                        password='26289058')
+conn = psycopg2.connect(database='', user='',
+                        password='')
 
 
 def create_db():
