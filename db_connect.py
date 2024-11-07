@@ -8,6 +8,7 @@ conn = psycopg2.connect(database='example_db', user='vladimir',
 
 
 def create_db():
+    """Создает таблицы в базе данных."""    
     with conn.cursor() as cur:
         cur.execute("""
         DROP TABLE users CASCADE;
@@ -46,6 +47,7 @@ def create_db():
 
 
 def add_user(vk_id, name, last_name, sex, age, city):
+    """Добавляет информацию о пользователе приложения в базу данных."""
     with conn.cursor() as cur:
         cur.execute("""
             INSERT INTO users(vk_id, name, last_name, sex, age, city)
@@ -56,6 +58,7 @@ def add_user(vk_id, name, last_name, sex, age, city):
 
 
 def get_user(vk_id_user):
+    """Принимает в качестве аргумента vk_id пользователя приложения и выдает из базы информацию о нем для дальшейшего использования."""
     with (conn.cursor() as cur):
         cur.execute(f"""
             SELECT sex, age, city FROM users
@@ -71,6 +74,7 @@ def get_user(vk_id_user):
 
 
 def get_user_id(vk_id_user):
+    """Принимает в качестве аргумента vk_id пользователя приложения, возвращает id пользователя в базе данных."""
     with conn.cursor() as cur:
         cur.execute(
             f"""SELECT id FROM users WHERE vk_id = {vk_id_user}""")
@@ -82,6 +86,7 @@ def get_user_id(vk_id_user):
 
 
 def add_shown(user_id, vk_id_searched, name, last_name, account_url):
+    """Добавляет информацию о показанном варианте в базу данных при нажатии кнопки 'Добавить в избранное'."""
     with conn.cursor() as cur:
         cur.execute("""
             INSERT INTO shown(user_id, vk_id_searched, name, last_name, account_url)
@@ -92,6 +97,7 @@ def add_shown(user_id, vk_id_searched, name, last_name, account_url):
 
 
 def get_shown(vk_id):
+    """Выводит список избранных с ссылкой на аккаунт и самой популярной фотографией."""
     with conn.cursor() as cur:
         cur.execute(f"""
             SELECT vk_id_searched ,name, last_name, account_url, photo_url FROM shown 
@@ -102,6 +108,7 @@ def get_shown(vk_id):
 
 
 def check_shown(vk_id, flag=False):
+    """Принимает в качестве аргумента vk_id показанного варианта и проверяет на наличие в списке избранных."""
     with conn.cursor() as cur:
         cur.execute(f"""
             SELECT id FROM shown 
@@ -114,6 +121,7 @@ def check_shown(vk_id, flag=False):
 
 
 def del_shown_user(shown_vk_id):
+    """Удаляет из списка избранных в базе данных по vk_id варианта."""
     with conn.cursor() as cur:
         cur.execute(f"""
                     DELETE FROM shown
@@ -123,6 +131,7 @@ def del_shown_user(shown_vk_id):
 
 
 def change_gender(user_id, gender_numb):
+    """Вносит в базу данных информацию о поле пользователя приложения, если информация о пользователе неполная."""
     with conn.cursor() as cur:
         cur.execute(
             f"""UPDATE users SET sex = '{gender_numb}' WHERE vk_id = '{user_id}'""")
@@ -130,6 +139,7 @@ def change_gender(user_id, gender_numb):
 
 
 def change_age(user_id, age):
+    """Вносит в базу данных информацию о возрасте пользователя приложения, если информация о пользователе неполная."""
     with conn.cursor() as cur:
         stmt = sql.SQL(
             f"""UPDATE users SET age = '{age}' WHERE vk_id = '{user_id}'""").format(
@@ -139,6 +149,7 @@ def change_age(user_id, age):
 
 
 def change_city(user_id, city):
+    """Вносит в базу данных информацию о городе пользователя приложения, если информация о пользователе неполная."""
     with conn.cursor() as cur:
         stmt = sql.SQL(
             f"""UPDATE users SET city = '{city}' WHERE vk_id = '{user_id}'""").format(
@@ -146,7 +157,8 @@ def change_city(user_id, city):
         cur.execute(stmt)
         conn.commit()
 
-def add_photos(user_id, shown_vk_id):       
+def add_photos(user_id, shown_vk_id):
+        """Добавляет фотографии избранного варианта в базу данных."""       
         for photo in photos_get(user_id):
             with conn.cursor() as cur:
                 cur.execute(f"""
