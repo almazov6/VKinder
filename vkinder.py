@@ -1,12 +1,12 @@
-import configpars
+import VK.configpars as configpars
 import vk_api
-import db_connect as database
+import data_base.db_connect as database
 
 from vkton.ui import Button
 from vkton import Bot, Commands, Context
 from vk_api.longpoll import VkLongPoll
-from user import User
-from vkapi import Vkapi
+from VK.user import User
+from VK.vkapi import Vkapi
 
 bot = Bot(configpars.cfg.configparser('VK'), group_id=228101541)
 api = vk_api.VkApi(token=configpars.cfg.configparser('VK'))

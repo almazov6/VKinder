@@ -1,0 +1,3 @@
+DB_NAME = ''
+DB_LOGIN = ''
+DB_PASSWORD = ''
