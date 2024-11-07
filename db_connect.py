@@ -1,6 +1,7 @@
 import psycopg2
 
 from psycopg2 import sql
+from vkapi import photos_get
 
 conn = psycopg2.connect(database='example_db', user='vladimir',
                         password='26289058')
@@ -145,12 +146,12 @@ def change_city(user_id, city):
         cur.execute(stmt)
         conn.commit()
 
-def add_photos(shown_id, *photo_urls):        
-        for photo in photo_urls:
+def add_photos(user_id, shown_vk_id):       
+        for photo in photos_get(user_id):
             with conn.cursor() as cur:
-                cur.execute("""
+                cur.execute(f"""
                     INSERT INTO photos(shown_id, photo_url)
-                    VALUES(%s, %s)
+                    VALUES((SELECT id From shown WHERE vk_id_searched = '{shown_vk_id}'), '{photo}')
                     RETURNING shown_id, photo_url
-                    """, (shown_id, photo))                                          
+                    """, (shown_vk_id, photo))                                          
                 conn.commit()
