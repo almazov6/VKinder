@@ -6,42 +6,42 @@ conn = psycopg2.connect(database='example_db', user='vladimir',
                         password='26289058')
 
 
-# def create_db():
-#     with conn.cursor() as cur:
-#         # cur.execute("""
-#         # DROP TABLE users CASCADE;
-#         # DROP TABLE shown CASCADE;
-#         # DROP TABLE photos CASCADE
-#         # """);
-#         conn.commit()
-#
-#         cur.execute("""CREATE TABLE IF NOT EXISTS users(
-#                     id SERIAL,
-#                     vk_id INTEGER NOT NULL PRIMARY KEY,
-#                     name VARCHAR(60) NOT NULL,
-#                     last_name VARCHAR(60) NOT NULL,
-#                     sex INTEGER,
-#                     age INTEGER,
-#                     city VARCHAR(40)
-#                     )
-#                     """);
-#         cur.execute(""" CREATE TABLE IF NOT EXISTS shown(
-#                     id serial PRIMARY KEY,
-#                     user_id INTEGER NOT NULL REFERENCES users(vk_id),
-#                     vk_id_searched VARCHAR(10) NOT NULL,
-#                     name VARCHAR(60) NOT NULL,
-#                     last_name VARCHAR(60) NOT NULL,
-#                     account_url VARCHAR(40),
-#                     statement VARCHAR(10) NOT NULL
-#                     )
-#                     """);
-#
-#         cur.execute(""" CREATE TABLE IF NOT EXISTS photos(
-#                     shown_id INTEGER NOT NULL REFERENCES shown(id),
-#                     photo_url VARCHAR(100)
-#                     )
-#                     """);
-#         conn.commit()
+def create_db():
+    with conn.cursor() as cur:
+        cur.execute("""
+        DROP TABLE users CASCADE;
+        DROP TABLE shown CASCADE;
+        DROP TABLE photos CASCADE
+        """);
+        conn.commit()
+
+        cur.execute("""CREATE TABLE IF NOT EXISTS users(
+                    id SERIAL,
+                    vk_id INTEGER NOT NULL PRIMARY KEY,
+                    name VARCHAR(60) NOT NULL,                     
+                    last_name VARCHAR(60) NOT NULL,
+                    sex INTEGER,
+                    age INTEGER,
+                    city VARCHAR(40)
+                    )
+                    """);
+        cur.execute(""" CREATE TABLE IF NOT EXISTS shown(
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(vk_id),
+                    vk_id_searched VARCHAR(10) NOT NULL,
+                    name VARCHAR(60) NOT NULL,
+                    last_name VARCHAR(60) NOT NULL,
+                    account_url VARCHAR(40)               
+                    )
+                    """);
+
+        cur.execute(""" CREATE TABLE IF NOT EXISTS photos(
+                    id SERIAL PRIMARY KEY,
+                    shown_id INTEGER NOT NULL REFERENCES shown(id),
+                    photo_url VARCHAR(100)
+                    )
+                    """);
+        conn.commit()
 
 
 def add_user(vk_id, name, last_name, sex, age, city):
@@ -83,17 +83,19 @@ def get_user_id(vk_id_user):
 def add_shown(user_id, vk_id_searched, name, last_name, account_url):
     with conn.cursor() as cur:
         cur.execute("""
-            INSERT INTO shown(user_id, vk_id_searched, name, last_name, account_url, statement)
-            VALUES(%s, %s, %s, %s, %s, 'нейтрально')
-            RETURNING user_id, vk_id_searched, name, last_name, account_url, statement
+            INSERT INTO shown(user_id, vk_id_searched, name, last_name, account_url)
+            VALUES(%s, %s, %s, %s, %s)
+            RETURNING user_id, vk_id_searched, name, last_name, account_url
             """, (user_id, vk_id_searched, name, last_name, account_url));
         conn.commit()
 
 
 def get_shown(vk_id):
     with conn.cursor() as cur:
-        cur.execute(
-            f"""SELECT vk_id_searched ,name, last_name, account_url FROM shown WHERE user_id = {vk_id}""")
+        cur.execute(f"""
+            SELECT vk_id_searched ,name, last_name, account_url, photo_url FROM shown 
+            LEFT JOIN photos ON shown.id = photos.shown_id WHERE user_id = {vk_id} 
+            ORDER BY shown_id DESC LIMIT 1""")
         result = cur.fetchall()
     return result
 
@@ -142,3 +144,13 @@ def change_city(user_id, city):
             city=sql.Identifier(str(city)))
         cur.execute(stmt)
         conn.commit()
+
+def add_photos(shown_id, *photo_urls):        
+        for photo in photo_urls:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO photos(shown_id, photo_url)
+                    VALUES(%s, %s)
+                    RETURNING shown_id, photo_url
+                    """, (shown_id, photo))                                          
+                conn.commit()
