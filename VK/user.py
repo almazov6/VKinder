@@ -1,6 +1,6 @@
 import datetime
-import vkapi as api
-import db_connect as database
+import VK.vkapi as api
+import data_base.db_connect as database
 
 from datetime import datetime
 
@@ -22,7 +22,7 @@ class User:
         except KeyError:
             city = 'Не заполнено'
         try:
-            birthday = datetime.date.today().year - int(user['bdate'][-4:])
+            birthday = datetime.today().year - int(user['bdate'][-4:])
         except KeyError:
             birthday = 0
         result = {

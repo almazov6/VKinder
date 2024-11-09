@@ -1,15 +1,16 @@
-import configpars
 import vk_api
-import db_connect as database
+import data_base.db_connect as database
 
 from vkton.ui import Button
 from vkton import Bot, Commands, Context
 from vk_api.longpoll import VkLongPoll
-from user import User
-from vkapi import Vkapi
 
-bot = Bot(configpars.cfg.configparser('VK'), group_id=228101541)
-api = vk_api.VkApi(token=configpars.cfg.configparser('VK'))
+from VK.config import VK_TOKEN
+from VK.user import User
+from VK.vkapi import Vkapi
+
+bot = Bot(VK_TOKEN, group_id=228101541)
+api = vk_api.VkApi(token=VK_TOKEN)
 longpoll = VkLongPoll(api)
 vk = Vkapi()
 
@@ -94,8 +95,7 @@ def starting(ctx: Context):
                              'id']) != 'Profile private' and not database.check_shown(
             users[item]['id']):
             ctx.user.send(f'{users[item]['first_name']} '
-                          f'{users[item]['last_name']}, '
-                          f'{users[item]['city']['title']}',
+                          f'{users[item]['last_name']}',
                           keys=[
                               [Button('Следующий', 'white')],
                               [Button('Перейти в профиль', 'white',
@@ -118,6 +118,7 @@ def starting(ctx: Context):
                                    users[item]['last_name'],
                                    f'https://vk.com/id{users[item]['id']}',
                                    )
+                database.add_photos(users[item]['id'])
                 ctx.user.send('Профиль добавлен в избранное')
     Commands.redirect(ctx, 'start')
 
@@ -143,6 +144,7 @@ def shown_list(ctx: Context):
                               [Button('Список избранных', 'green')],
                               [Button('В начало', 'white')]
                           ])
+            vk.messages_send(ctx.user.id, item[0], item[4])
 
 
 @Commands.command(keywords=['Удалить из списка'], back_to='start')

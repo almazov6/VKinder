@@ -1,11 +1,12 @@
-import configpars
 import requests
+
+from VK.config import VK_TOKEN, SERVICE_TOKEN, USER_TOKEN
 
 API_BASE_URL = 'https://api.vk.com/method'
 
 
 class Vkapi:
-    def __init__(self, token=configpars.ConfigParser.configparser('VK'),
+    def __init__(self, token=VK_TOKEN,
                  version='5.199'):
         self.token = token
         self.version = version
@@ -28,7 +29,7 @@ class Vkapi:
     def user_search(self, city_id, sex, age_from, age_to):
         params = self.get_commot_params()
         params.update({
-            'access_token': configpars.ConfigParser.configparser('USR'),
+            'access_token': USER_TOKEN,
             'fields': 'photo_id, city',
             'has_photo': 1,
             'hometown': city_id,
@@ -44,7 +45,7 @@ class Vkapi:
     def photos_get(self, user_id):
         params = self.get_commot_params()
         params.update({
-            'access_token': configpars.ConfigParser.configparser('SVK'),
+            'access_token': SERVICE_TOKEN,
             'album_id': 'profile',
             'owner_id': user_id,
             'extended': 1
